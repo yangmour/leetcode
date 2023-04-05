@@ -1,0 +1,69 @@
+* 
+
+```
+class Solution {
+    public List<Integer> findSubstring(String s, String[] words) {
+        // 存储所有串联子串在s中的开始索引
+        List<Integer> res = new ArrayList<Integer>();
+        int len = s.length();
+        // 字符串数组里面单词总个数
+        int wordNum = words.length;
+        // 由于words中所有字符串长度相同，所以每个单词长度都和words[0]一样
+        int wordLen = words[0].length();
+        // words总长度，可以认为是这个字符串数组拼接为一个大的字符串的长度
+        int totalLen = wordLen * wordNum;
+        // 存储words的单词和个数
+        Map<String,Integer> map = new HashMap<String,Integer>();
+        for (String word : words) {
+            // 单词word作为key，次数作为value
+            map.put(word, map.getOrDefault(word,0) + 1);
+        }
+        // 滑动窗口当中去寻找符合要求的单词
+        for (int i = 0 ; i < wordLen ; i++) {
+            // 当前窗口范围为[left, right]
+            int left = i;
+            int right = i;
+            // 窗口中符合要求的单词个数
+            int count = 0;
+            // 存储窗口中符合条件的单词及数量
+            // 统计当前子串中每个目标单词的出现次数
+            Map<String, Integer> hasWords = new HashMap<String, Integer>();
+            while (right + wordLen <= len) {
+                // 获取此时将要加入窗口的元素
+                String cur = s.substring(right, right + wordLen);
+                // 右端位置更新
+                right += wordLen;
+                // 查看字符串数组words当中是否存在这个cur单词
+                // 如果存在代表此时加入到滑动窗口的元素是一个需要的合法单词
+                if (map.containsKey(cur)) {
+                    // 更新数量
+                    hasWords.put(cur,hasWords.getOrDefault(cur,0) + 1);
+                    count++;
+                    // 特殊情况
+                    while (hasWords.get(cur) > map.get(cur)) {
+                        String del = s.substring(left, left + wordLen);
+                        // 执行删除操作
+                        hasWords.put(del,hasWords.get(del) - 1);
+                        left += wordLen;
+                        count--;
+                    }
+                } 
+                // 如果不存在，说明cur不合法
+                else {
+                    left = right;
+                    hasWords.clear();
+                    count = 0;
+                }
+                // 在每一个滑动窗口里，都会判断一下里面是否包含了所有有效单词
+                // 即判断count是否等于wordNum
+                // 如果等于wordNum，说明找到了一个串联子串
+                if (count == wordNum) {
+                    res.add(left);
+                }   
+            }
+        }
+        return res;
+    }
+}
+```
+
